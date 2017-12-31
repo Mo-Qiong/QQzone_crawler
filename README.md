@@ -1,6 +1,8 @@
 ## 关于
 Edit by equationl
 
+优先在 [码云](https://gitee.com/equation/QQzoneMood_crawler) 上更新
+
 该项目修改自 xjr7670 的 [QQzone_crawler](https://github.com/xjr7670/QQzone_crawler)
 原作者说明： [QQ空间动态爬虫](https://zhuanlan.zhihu.com/p/24656161)
 
