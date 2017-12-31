@@ -1,23 +1,23 @@
-##关于
+## 关于
 Edit by equationl
 
 该项目修改自 xjr7670 的 [QQzone_crawler](https://github.com/xjr7670/QQzone_crawler)
 原作者说明： [QQ空间动态爬虫](https://zhuanlan.zhihu.com/p/24656161)
 
-####修改了什么？
+#### 修改了什么？
 * 爬取完整的评论列表
 * 爬取点赞的人
 * 爬取说说的浏览量等更多信息
 * 简化运行操作，默认不保存元数据，直接整理后存进数据库（有需要更多数据或元数据的请自行修改）
 
-##快速开始
+## 快速开始
 将 cookie 存入 cookie_file 参照一下两种方式运行
-####方法1 遍历爬取所有好友的说说
+#### 方法1 遍历爬取所有好友的说说
 ``
 python main.py
 ``
 
-####方法2 爬取指定一个好友的说说
+#### 方法2 爬取指定一个好友的说说
 ``
 python main.py qq_number
 ``
@@ -25,9 +25,9 @@ python main.py qq_number
 ``
 python main.py 123456
 ``
-##数据库结构
+## 数据库结构
 默认将数据储存于 ./moods.db
-####表 moods 说说相关数据
+#### 表 moods 说说相关数据
 * id integer primary key Autoincrement not null
 * qq int not null   说说所属qq
 * content text null 说说内容
@@ -41,7 +41,7 @@ python main.py 123456
 * visit int not null    说说的浏览量
 * retweet int not null  说说的转发量
 
-####表 likes 点赞用户数据
+#### 表 likes 点赞用户数据
 * id integer primary key Autoincrement not null
 * qq int not null   点赞者qq
 * tid text not null 点赞所属说说id
@@ -50,7 +50,7 @@ python main.py 123456
 * gender text null  点赞者性别
 * nick text not null    点赞者昵称
 
-####表 comments 回复相关数据
+#### 表 comments 回复相关数据
 * id integer primary key Autoincrement not null
 * qq int not null   回复者qq号
 * tid text not null 回复所属说说
@@ -65,7 +65,7 @@ python main.py 123456
 * 获取元数据或更多数据请修改 `./get_full_data.py` 文件中的 `StartGetFullData()` 类的 `get_count()`、`get_likes()`、`get_comment()` 方法
 * 默认爬取延时为 20s ，原作者给的 5s 在其他接口都不会被反爬，但是获取点赞列表容易 403 。需要更改延时的请在 `./get_moods.py` 中修改
 
-###以下为原项目信息
+### 以下为原项目信息
 ***
 
 ## QQzone_crawler
