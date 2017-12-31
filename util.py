@@ -1,3 +1,4 @@
+#coding:utf-8
 
 from urllib import parse
 import os
@@ -80,6 +81,85 @@ def parse_friends_url():
     url = host + parse.urlencode(params)
 
     return url
+
+
+def parse_likes_url(mood_id, qq):
+    """
+    :param mood_id: 说说id
+    :param begin_uid: 获取起点（qq）
+    :return:
+    """
+    #cookie中储存的qq号似乎前面加了一个英文字母 o ？
+    user_qq_num = cookie[cookie.find("uin=")+5:]
+    user_qq_num = user_qq_num[:user_qq_num.find(";")]
+    user_qq_num = int(user_qq_num)
+    unikey =  '''http://user.qzone.qq.com/'''+qq+'''/mood/'''+mood_id
+    params = {"g_tk": g_tk,
+              "unikey": unikey,
+              "query_count": 60,
+              "uin": user_qq_num}
+    host = "https://user.qzone.qq.com/proxy/domain/users.qzone.qq.com/cgi-bin/likes/get_like_list_app?"
+
+    url = host + parse.urlencode(params)
+    return url
+
+
+def parse_count_data_url(mood_id, qq):
+    """
+    :param mood_id: 说说id
+    :param qq: 所属qq
+    :return:
+    """
+    unikey = '''http://user.qzone.qq.com/'''+qq+'''/mood/'''+mood_id
+    params = {"unikey": unikey,
+              "fupdate":1,
+              "g_tk": g_tk}
+    host = "https://user.qzone.qq.com/proxy/domain/r.qzone.qq.com/cgi-bin/user/qz_opcnt2?"
+
+    url = host + parse.urlencode(params)
+    return url
+
+
+def parse_comments_url(mood_id, qq):
+    """
+    :param mood_id: 说说id
+    :param qq: 所属qq
+    :return:
+    """
+    topic_id = qq+"_"+mood_id
+    params = {"need_private_comment": 1,
+              "hostUin": qq,
+              "num": 20,
+              "order": 0,
+              "topicId": topic_id,
+              "format": "jsonp",
+              "g_tk": g_tk
+              }
+    host = "https://h5.qzone.qq.com/proxy/domain/taotao.qzone.qq.com/cgi-bin/emotion_cgi_getcmtreply_v6?"
+
+    url = host + parse.urlencode(params)
+    return url
+
+
+def parse_mood_data_url(qq_num, mood_id, count):
+    """
+    :param qq_num: 所属id
+    :param mood_id: 说说id
+    :param count: 查询数量
+    :return:
+    """
+    unikey = "http%3A%2F%2Fuser.qzone.qq.com%2F754237716%2Fmood%2F"+mood_id
+    params = {"g_tk": g_tk,
+              "unikey": unikey,
+              "begin_uid": 0,
+              "query_count": count,
+              "if_first_page": 1,
+              "uin": qq_num}
+    host = "https://user.qzone.qq.com/proxy/domain/users.qzone.qq.com/cgi-bin/likes/get_like_list_app?"
+
+    url = host + parse.urlencode(params)
+    return url
+
 
 def check_path(path):
     '''This method use to check if the path is exists.

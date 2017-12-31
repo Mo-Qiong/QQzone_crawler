@@ -1,9 +1,12 @@
+#coding:utf-8
+
 
 import requests
 import os
 import sys
 import time
 import util
+import get_moods_detail
 
 class Get_moods(object):
     '''Get moods file with cookie'''
@@ -34,8 +37,8 @@ class Get_moods(object):
             print(url)
             res = self.session.get(url, headers = self.headers)
             con = res.text
-            with open('mood_result/' + qqnumber + '/' + str(pos), 'w') as f:
-                f.write(con)
+            '''with open('mood_result/' + qqnumber + '/' + str(pos), 'w') as f:
+                f.write(con)  '''
 
             if '''"msglist":null''' in con:
                 key = False
@@ -45,15 +48,21 @@ class Get_moods(object):
                 with open('crawler_log.log', 'a') as log_file:
                     log_file.write("%s Cannot access..\n" % qqnumber)
                 key = False
+            #拿到数据再进行下一步解析
+            else:
+                #解析数据并写入数据库
+                get_moods_detail.start_write(qqnumber, con)
 
             # Cookie expried
             if '''"subcode":-4001''' in con:
                 with open('crawler_log.log', 'a') as log_file:
                     log_file.write('Cookie Expried! Time is %s\n' % time.ctime())
+                print("Cookie Expried!Get More in log file.")
                 sys.exit()
 
             pos += 20
-            time.sleep(5)
+            #延时
+            time.sleep(20)
 
     #below method only make for me to get the friend's mood
     #which havn't download yet.
@@ -101,7 +110,7 @@ class Get_moods_start(object):
                 log_file.write("Program run at: %s\tGetting %s data...\n" % (start_time, qq))
 
             try:
-                app.get_moods(qq)
+               app.get_moods(qq)
             except KeyboardInterrupt:
                 print('User Interrupt, program will exit')
                 sys.exit()

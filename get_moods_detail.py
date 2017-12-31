@@ -1,8 +1,10 @@
+#coding:utf-8
 
 import os
 import json
 import sqlite3
 import html
+import get_full_data
 
 class Get_detail(object):
     ''' Get moods detail information and save it to database'''
@@ -21,14 +23,12 @@ class Get_detail(object):
                 mood_dict[d] = file_list
         return mood_dict
 
-    def exact_mood_data(self, qq, fname):
+    def exact_mood_data(self, qq, content):
         '''Get mood data from files in result folder
         '''
 
         qqnumber = qq
-        filename = fname
-        with open(filename) as f:
-            con = f.read()
+        con = content
         con_dict = json.loads(con[10:-2])
         try:
             moods = con_dict['msglist']
@@ -45,6 +45,7 @@ class Get_detail(object):
             mood_item['create_time'] = mood['created_time']
             mood_item['comment_num'] = mood['cmtnum']
             mood_item['phone'] = mood['source_name']
+            mood_item['tid'] = mood['tid']
             mood_item['pic'] = mood['pic'][0]['url2'] if 'pic' in mood else ''
             mood_item['locate'] = mood['story_info']['lbs']['name'] if 'story_info' in mood else ''
 
@@ -65,31 +66,74 @@ class Get_detail(object):
                     # when the mood only has a video
                     mood_item['content'] = mood['video'][0]['url3']
 
+            app = get_full_data.StartGetFullData(qq,  mood_item['tid'])
+
+            print('Get count data with %d' % self.count)
+            count_data = app.get_count()
+
+            if count_data["like"] > 0:
+                try:
+                    print('Get like data with %d' % self.count)
+                    like_data = app.get_likes()
+                    self.insert_like_to_db(like_data, mood)
+                except Exception as e:
+                    print("ERROR in get like with count=%d info:%s\n" % (self.count, e))
+                    with open('crawler_log.log', 'a') as log_file:
+                        log_file.write("ERROR in get like with count=%d info:%s\n" % (self.count, e))
+
+            if mood['cmtnum'] > 0:
+                try:
+                    print('Get comment data with %d' % self.count)
+                    comment_data = app.get_comment()
+                    self.insert_comment_to_db(comment_data, mood)
+                except Exception as e:
+                    print("ERROR in get comment with count=%d info:%s\n" % (self.count, e))
+                    with open('crawler_log.log', 'a') as log_file:
+                        log_file.write("ERROR in get comment with count=%d info:%s\n" % (self.count, e))
+
+            mood_item["like"] = count_data["like"]
+            mood_item["visit"] = count_data["visit"]
+            mood_item["retweet"] = count_data["retweet"]
+
             print('Dealing with %d' % self.count)
-            self.insert_to_db(mood_item)
+            self.insert_mood_to_db(mood_item)
+
             self.count += 1
+            self.conn.commit()
             if self.count % 1000 == 0:
                 self.conn.commit()
 
-    def insert_to_db(self, mood):
-        sql = 'INSERT INTO moods (qq, ctime,  content, comment_count, phone, image, locate) VALUES (?, ?, ?, ?, ?, ?, ?)'
-        self.cur.execute(sql, (mood['belong'], mood['create_time'], mood['content'], mood['comment_num'], mood['phone'], mood['pic'], mood['locate']))
+    def insert_mood_to_db(self, mood):
+        sql = 'INSERT INTO moods (qq, ctime,  content, comment_count, phone, image, locate, tid, like,' \
+              ' visit, retweet)' \
+              ' VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
+        self.cur.execute(sql, (mood['belong'], mood['create_time'], mood['content'], mood['comment_num'], mood['phone'],
+                               mood['pic'], mood['locate'], mood['tid'], mood['like'], mood['visit'], mood['retweet']))
+
+    def insert_like_to_db(self, like, mood):
+        tid = mood["tid"]
+        for row in like:
+            sql = 'INSERT INTO likes (qq, tid, address, constellation, gender, nick)' \
+                  ' VALUES (?, ?, ?, ?, ?, ?)'
+            self.cur.execute(sql, (row["uid"], tid, row["addr"], row["constellation"], row["gender"], row["nick"]))
 
 
-if __name__ == '__main__':
+    def insert_comment_to_db(self, comment, mood):
+        print(str(comment))
+        tid = mood["tid"]
+        for row in comment:
+            sql = 'INSERT INTO comments (qq, tid, content, ctime, nick, father, cid) VALUES (?, ?, ?, ?, ?, ?, ?)'
+            self.cur.execute(sql, (row["qq"], tid, row["content"], row["time"], row["nick"], row["father"], row["cid"]))
 
-    conn = sqlite3.connect('moods.sqlite')
+
+def start_write(qq, content):
+    conn = sqlite3.connect('moods.db')
     cur = conn.cursor()
 
     app = Get_detail(conn, cur)
-    mood_dict = app.make_dict()
 
-    for dirname, fname in mood_dict.items():
-        for each_file in fname:
-            filename = os.path.join('mood_result', dirname, each_file)
-            app.exact_mood_data(dirname, filename)
-    else:
-        conn.commit()
-        cur.close()
-        conn.close()
-        print('Finish!')
+    app.exact_mood_data(qq, content)
+
+    conn.commit()
+    cur.close()
+    conn.close()
