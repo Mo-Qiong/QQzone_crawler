@@ -40,9 +40,9 @@ class Get_detail(object):
 
         qqnumber = qq
         filename = fname
-        with open(filename, encoding="utf-8") as f:
-            con = f.read()
-        con_dict = json.loads(con[10:-2])
+        '''with open(filename, encoding="utf-8") as f:
+            con = f.read()'''  
+        con_dict = json.loads(content[10:-2])
         try:
             moods = con_dict['msglist']
         except KeyError:

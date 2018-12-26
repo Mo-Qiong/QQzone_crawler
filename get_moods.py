@@ -12,6 +12,7 @@ import sys
 import time
 import util
 import get_moods_detail
+import traceback
 
 
 class Get_moods(object):
@@ -129,7 +130,7 @@ class Get_moods_start(object):
                 # Write the log
                 with open('crawler_log.log', 'a', encoding="utf-8") as log_file:
                     exception_time = time.ctime()
-                    log_file.write("Exception occured: %s\n%s\n" % (exception_time, e))
+                    log_file.write("Exception occured: %s\n%s\n" % (exception_time, traceback.format_exc()))
             else:
                 print("%s Finish!" % qq)
         else:
