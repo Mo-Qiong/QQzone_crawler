@@ -1,4 +1,6 @@
-#coding:utf-8
+#!/usr/bin/env python3
+#-*- coding:utf-8 -*-
+
 import get_my_friends
 import get_moods
 import get_qq_number
@@ -6,8 +8,8 @@ import operate_table
 import sys
 import get_moods_detail
 
-if __name__ == '__main__':
 
+if __name__ == '__main__':
     #Create database
     operate_table_obj = operate_table.Operate_table()
     operate_table_obj.create_table()
@@ -36,6 +38,7 @@ if __name__ == '__main__':
     # Finally, use the cleaned data to get mood
     # Base on last step's qqnumber.inc file
     # exact the qq number and start to get their moods
+    # 最后，根据每一个QQ号码去获取对应的动态
     get_moods_obj = get_moods.Get_moods_start()
     get_moods_obj.get_moods_start()
 

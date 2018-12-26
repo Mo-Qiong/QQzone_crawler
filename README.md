@@ -73,14 +73,12 @@ python main.py 123456
 ## QQzone_crawler
 QQ 空间动态爬虫，利用cookie登录获取所有可访问好友空间的动态并保存到本地
 
-需要先安装第三方库 **requests**
+需要先安装第三方库 **requests** <br />
 本程序使用的是**python3.5**，在**Linux**下完成。由于自己的电脑上同时有python2.7和python3.5，默认是python2。所以在每个程序头部我写的都是
 
 ```
-#/usr/bin/env python3
+#!/usr/bin/env python3
 ```
-
-配置不一样的朋友需要自己稍做修改。
 
 由于程序使用`from urllib import parse`，利用parse模块来构造URL，所以如果使用python2的朋友需要在对应的地方修改，此外print语句也是要相应修改的。
 
@@ -97,28 +95,30 @@ QQ 空间动态爬虫，利用cookie登录获取所有可访问好友空间的�
 
 **get_moods.py**： 用于从QQ空间服务器获取包含每个好友空间发表的说说的文件，其中包含每个说说的发表时间、内容、地点信息、手机信息等，保存到本地，每个文件中保存20条信息。每完成一个文件请求后，会暂停5秒。在程序运行时，会自动将这些文件保存在mood_result文件夹中。
 
-**cookie_file**： 用于放置自己登录QQ空间后得到的cookie。从浏览器中复制出来，默认是会分行的，不用管它，在负责处理cookie的函数中已有对应的处理代码。但由于我是在Linux下利用替换的方式替换掉换行符，所以如果在windows下运行，可能还需要在这里处理一下。**但要注意的是，这个文件里面只能放一个cookie。它的作用是方便设置cookie，而不是用于反反爬虫。**
+**cookie_file**： 用于放置自己登录QQ空间后得到的cookie。从浏览器中复制出来放在这个文件内即可，在负责处理cookie的函数中有对应的处理代码来处理换行符，但还是希望不要出现多行，末尾也不要有多余的空行。**但要注意的是，这个文件里面只能放一个cookie。它的作用是方便设置cookie，而不是用于反反爬虫。** 如果不知道怎么获取cookie，请看[这里](http://www.xjr7670.com/articles/how-to-get-qzone-cookie.html)
 
 ---
+
+# 可视化部分
 
 **operate_table.py**：这个程序创建用于保存说说信息的数据库。里面写了创建数据表和删除数据表的两个函数。需要单独执行。
 创建数据表：
 
 ```
-python operate_table.py create_table
+python3 operate_table.py create_table
 ```
 
 删除数据表：
 
 ```
-python operate_table.py drop_table
+python3 operate_table.py drop_table
 ```
 
 > 方程注：数据库操作已写入 main.py 无需使用者自行运行
 
 **get_moods_detail.py**：程序在执行完get_moods.py中的功能之后，会把包含有每个好友的说说文件保存到本地。而这个程序就是用于把说说信息从这些文件里面提取出来，放到sqlite数据库里面去的。这个程序需要单独执行。执行完后在当前目录下会生成moods.sqlite数据库文件。本程序需要在成功执行operate_table.py程序创建数据表后执行。
 
-**get_single_report**：这个是个Web程序，用于在浏览器中查看指定好友说说的简单报告。也需要单独执行，并且必须要在执行完get_moods_details.py文件以生成moods.sqlite数据库文件，这个web程序才可以正确执行。直接执行本文件夹中的index.py即可。需要先安装flask、pandas、sqlalchemy这3个库。执行index.py后，在浏览器中输入 http://localhost/qqnum=QQ号码 就可以查看到结果了
+**get_single_report**：这个是个Web程序，用于在浏览器中查看指定好友说说的简单报告。也需要单独执行，并且必须要在执行完get_moods_details.py文件以生成moods.sqlite数据库文件，这个web程序才可以正确执行。直接执行本文件夹中的index.py即可。需要先安装flask、pandas、sqlalchemy这3个库。执行index.py后，在浏览器中输入 http://localhost:5000/qqnum=QQ号码 就可以查看到结果了
 
 > 方程注：1.已修改为请求完成后直接解析数据并储存至数据库，无需手动运行 get_moods_detail.py 2.已删除 get_single_report 相关文件，有需要的请自行前往原项目拷贝
 
@@ -130,3 +130,7 @@ python operate_table.py drop_table
 2.1 更新后的版本，可以通过依次执行operate_table.py、get_moods_detail.py两个程序来把动态保存在sqlite数据库文件中
 
 3. 在get_moods_detail.py程序中，我只提取了当时所需要的部分信息，而不是与说说相关的所有信息。有需要其它信息的还要自己去operate_table.py中修改创建数据表的函数以及在get_moods_detail.py程序中修改提取说说信息的函数
+
+4. 程序开始运行后，会产生一个日志文件crawler_log.log，它记录了程序运行期间的一些必要的信息，比如什么时候抓取到了哪个号码的空间，这个空间能不能被访问等
+
+5. 在创建了数据库表后，如果有需要重新执行提取动态插入数据库表的操作的话，建议先删除原表，再执行提取
