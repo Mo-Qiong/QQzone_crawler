@@ -48,8 +48,21 @@ class Get_moods(object):
             with open('mood_result/' + qqnumber + '/' + str(pos), 'w', encoding="utf-8") as f:
                 f.write(con)
 
+            if res.status_code != requests.codes.ok:
+                with open('crawler_log.log', 'a', encoding="utf-8") as log_file:
+                    log_file.write('Request Fail! Response Code is {} , Time is {} , Please check yuor cookies'.format(str(res.status_code), time.ctime()))
+                print("Request Fail! Get More in log file.")
+                sys.exit()
+
             if '''"msglist":null''' in con:
                 key = False
+
+                        # Cookie expried
+            if '''"subcode":-4001''' in con:
+                with open('crawler_log.log', 'a', encoding="utf-8") as log_file:
+                    log_file.write('Cookie Expried! Time is %s\n' % time.ctime())
+                print("Cookie Expried!Get More in log file.")
+                sys.exit()
 
             # Cannot access...
             if '''"msgnum":0''' in con:
@@ -60,13 +73,6 @@ class Get_moods(object):
             else:
                 #解析数据并写入数据库
                 get_moods_detail.start_write(qqnumber, con)
-
-            # Cookie expried
-            if '''"subcode":-4001''' in con:
-                with open('crawler_log.log', 'a', encoding="utf-8") as log_file:
-                    log_file.write('Cookie Expried! Time is %s\n' % time.ctime())
-                print("Cookie Expried!Get More in log file.")
-                sys.exit()
 
             pos += 20
             #延时

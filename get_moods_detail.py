@@ -15,6 +15,7 @@ import json
 import sqlite3
 import html
 import get_full_data
+import traceback
 
 
 class Get_detail(object):
@@ -39,9 +40,10 @@ class Get_detail(object):
         '''
 
         qqnumber = qq
-        filename = fname
-        '''with open(filename, encoding="utf-8") as f:
+        '''filename = fname
+        with open(filename, encoding="utf-8") as f:
             con = f.read()'''  
+        print("??????"+content)
         con_dict = json.loads(content[10:-2])
         try:
             moods = con_dict['msglist']
@@ -90,9 +92,9 @@ class Get_detail(object):
                     like_data = app.get_likes()
                     self.insert_like_to_db(like_data, mood)
                 except Exception as e:
-                    print("ERROR in get like with count=%d info:%s\n" % (self.count, e))
+                    print("ERROR in get like with count=%d info:%s\n" % (self.count, traceback.format_exc()))
                     with open('crawler_log.log', 'a') as log_file:
-                        log_file.write("ERROR in get like with count=%d info:%s\n" % (self.count, e))
+                        log_file.write("ERROR in get like with count=%d info:%s\n" % (self.count, traceback.format_exc()))
 
             if mood['cmtnum'] > 0:
                 try:
@@ -100,9 +102,9 @@ class Get_detail(object):
                     comment_data = app.get_comment()
                     self.insert_comment_to_db(comment_data, mood)
                 except Exception as e:
-                    print("ERROR in get comment with count=%d info:%s\n" % (self.count, e))
+                    print("ERROR in get comment with count=%d info:%s\n" % (self.count, traceback.format_exc()))
                     with open('crawler_log.log', 'a') as log_file:
-                        log_file.write("ERROR in get comment with count=%d info:%s\n" % (self.count, e))
+                        log_file.write("ERROR in get comment with count=%d info:%s\n" % (self.count, traceback.format_exc()))
 
             mood_item["like"] = count_data["like"]
             mood_item["visit"] = count_data["visit"]

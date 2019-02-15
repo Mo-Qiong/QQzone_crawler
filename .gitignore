@@ -1,0 +1,7 @@
+/mood_result/*
+/friends/*
+/cookie_file
+/crawler_log.log
+/moods.db
+/qqnumber.inc
+*.pyc
